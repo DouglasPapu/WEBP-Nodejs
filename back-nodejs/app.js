@@ -6,7 +6,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-const mongoose = require('./config/mongoose');
+
 
 //Begin
 
@@ -27,8 +27,8 @@ error => {
   console.log("Database couldn't be connected to: "+error);
 })
 
-const postAPI = require('./routes/add.route');
-const bodyParser = require('body-parser');
+const userAPI = require('./routes/user.route');
+
 
 //Config express
 var app = express();
@@ -39,8 +39,8 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cors());
 
-//APU
-app.use('/api', postAPI);
+//API
+app.use('/api', userAPI);
 
 //Port used
 const port = process.env.port || 4000;
