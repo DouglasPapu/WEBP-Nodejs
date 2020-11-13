@@ -39,4 +39,17 @@ userRoute.route('/update-user/:id').put((req, res, next) => {
     })
 });
 
+//remove user
+userRoute.route('/remove-user/:id').delete((req, res, next) => {
+    UserModel.findByIdAndRemove(req.params.id, (error, data) => {
+        if(error){
+            return next(error);
+        }else{
+            res.status(200).json({
+                msg: data,
+            });
+            console.log('User removed');
+        }
+    })
+})
 module.exports = userRoute; 
