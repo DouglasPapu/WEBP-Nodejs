@@ -12,12 +12,12 @@ const mongoose = require('./config/mongoose');
 
 cors = require('cors');
 mongoose = require('mongoose');
-db = require('./config/mongoose');
+database = require('./config/mongoose');
 bodyParser = require('body-parser');
 
 //Connection to MongoDB
 mongoose.Promise = global.Promise;
-mongoose.connect(db.db, {
+mongoose.connect(database.db, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
@@ -56,9 +56,6 @@ app.use(function(err, req, res, next){
   }
   res.status(err.statusCode).send(err.message)
 });
-
-
-
 
 
 // view engine setup
