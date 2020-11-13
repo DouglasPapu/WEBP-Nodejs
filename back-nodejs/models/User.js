@@ -22,7 +22,8 @@ let userSchema = new Schema({
         type: String
     },
     active: {
-        type: Boolean
+        type: Boolean,
+        default: false
     }
 },{
     colecction: 'users'

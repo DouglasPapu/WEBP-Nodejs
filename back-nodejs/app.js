@@ -40,7 +40,7 @@ app.use(bodyParser.urlencoded({
 app.use(cors());
 
 //API
-app.use('/api', userAPI);
+app.use('/users', userAPI);
 
 //Port used
 const port = process.env.port || 4000;
