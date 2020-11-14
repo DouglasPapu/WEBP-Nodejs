@@ -1,12 +1,36 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import VueRouter from 'vue-router'
 import store from './store'
-import VueSweetalert2 from 'vue-sweetalert2';
-import vuetify from './plugins/vuetify';
+import vuetify from './plugins/vuetify'
+import Home from './views/Home.vue'
+import AddUser from './views/AddUser'
+import Users from './views/Users'
 
 Vue.config.productionTip = false
-Vue.use(VueSweetalert2);
+
+const routes = [
+    {
+      path: '/',
+      name: 'Home',
+      component: Home
+    },
+    {
+      path: '/add-user',
+      name: 'Add User',
+      component: AddUser
+    },
+    {
+      path: '/users',
+      name: 'Users',
+      component: Users
+    }
+  ];
+
+const router = new VueRouter({ routes });
+
+Vue.use(VueRouter);
+
 new Vue({
     router,
     store,
