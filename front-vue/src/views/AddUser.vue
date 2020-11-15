@@ -1,8 +1,8 @@
 <template>
   <div>
-    <v-card width="500" shaped elevation="17" class="mx-auto mt-9">
+    <v-card width="500" shaped elevation="17" class="mx-auto mt-16">
       <v-card-title class="justify-center">Add new user</v-card-title>
-      <v-form>
+      <v-form v-model="isValid">
         <v-container>
           <v-row>
             <v-col cols="12" md="6">
@@ -129,6 +129,7 @@ export default {
           username.length >= 8 || "Username must be at least 8 characters",
       ],
       typeItems: ["CC", "TI"],
+      isValid: true,
     };
   },
 };
