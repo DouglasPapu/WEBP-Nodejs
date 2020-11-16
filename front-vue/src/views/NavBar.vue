@@ -2,7 +2,7 @@
   <div>
     <v-app-bar color="green" app dark>
       <v-toolbar-title style="width 300px" class="ml-4 pl-2">
-        <span class="sm-and-down">CRUD with Front+Backend</span>
+        <span class="sm-and-down">UsersApp</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn to="/" text rounded>Home</v-btn>

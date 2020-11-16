@@ -1,7 +1,7 @@
 <template>
-  <v-card width="1000" shaped elevation="17" class="mx-auto mt-16">
-    <v-data-table :headers="headers" :items="users" item-key="_id">
-      <template v-slot:item.actions="{item}">
+  <v-card width="1000" elevation="17" class="mx-auto mt-16">
+    <v-data-table :headers="headers" :items="users" item-key="_id" rounded>
+      <template v-slot:item.actions="{ item }">
         <v-btn
           color="success"
           class="mx-2"
@@ -15,9 +15,17 @@
           <v-icon small>delete</v-icon>
         </v-btn>
       </template>
+      <template v-slot:item.active="{ item }">
+        <v-icon :color="item.active ? 'green darken-2' : 'red'">{{
+          item.active ? "how_to_reg" : "unpublished"
+        }}</v-icon>
+      </template>
     </v-data-table>
     <v-dialog v-model="dialog">
-      <v-form v-model="isValid" @submit.prevent="createUser">
+      <v-card rounded>
+        <v-card-title class="justify-center">Edit User</v-card-title>
+        <v-card-text>
+          <v-form v-model="isValid" @submit.prevent="editUser">
         <v-container>
           <v-row>
             <v-col cols="12" md="6">
@@ -48,6 +56,15 @@
               />
             </v-col>
             <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.password"
+                required
+                label="Password"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
               <v-combobox
                 v-model="user.identification.type"
                 :items="typeItems"
@@ -56,22 +73,12 @@
                 dense
               ></v-combobox>
             </v-col>
-          </v-row>
-          <v-row>
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="user.identification.number"
                 required
                 type="number"
                 label="Number"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="user.password"
-                required
-                label="Password"
-                type="password"
               />
             </v-col>
           </v-row>
@@ -87,20 +94,22 @@
                 color="success"
                 :value="user.active"
                 prepend-icon="check_circle"
-                hide-details
                 required
               ></v-switch>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <v-btn :disabled="!isValid" class="primary" @click="createUser">
-                <v-icon>save</v-icon> Save</v-btn
+              <v-btn :disabled="!isValid" class="primary" @click="updateUser">
+                <v-icon>update</v-icon> Update</v-btn
               >
             </v-col>
           </v-row>
         </v-container>
       </v-form>
+        </v-card-text>
+      </v-card>
+      
     </v-dialog>
   </v-card>
 </template>
@@ -122,12 +131,12 @@ export default {
       user: {
         name: {
           firstName: "",
-          lastName: ""
+          lastName: "",
         },
         username: "",
         identification: {
           type: "",
-          number: ""
+          number: "",
         },
         password: "",
         photo: "",
@@ -135,23 +144,60 @@ export default {
       },
       users: [],
       headers: [
-        { text: "First Name", value: "name.firstName", sortable: true },
-        { text: "Last Name", value: "name.lastName", sortable: true },
-        { text: "Username", value: "username", sortable: false },
-        { text: "Identification Type", value: "identification.type", sortable: false },
-        { text: "Identification Number", value: "identification.number", sortable: false },
-        { text: "Password", value: "password", sortable: false },
-        { text: "Photo", value: "photo", sortable: false },
-        { text: "Active", value: "active", sortable: false },
-        { text: "Actions", value: "actions", sortable: false, width: "150px" },
+        {
+          text: "First Name",
+          value: "name.firstName",
+          sortable: true,
+          align: "center",
+        },
+        {
+          text: "Last Name",
+          value: "name.lastName",
+          sortable: true,
+          align: "center",
+        },
+        {
+          text: "Username",
+          value: "username",
+          sortable: false,
+          align: "center",
+        },
+        {
+          text: "Identification Type",
+          value: "identification.type",
+          sortable: false,
+          align: "center",
+        },
+        {
+          text: "Identification Number",
+          value: "identification.number",
+          sortable: false,
+          align: "center",
+        },
+        {
+          text: "Password",
+          value: "password",
+          sortable: false,
+          align: "center",
+        },
+        { text: "Photo", value: "photo", sortable: false, align: "center" },
+        { text: "Active", value: "active", sortable: false, align: "center" },
+        {
+          text: "Actions",
+          value: "actions",
+          sortable: false,
+          width: "150px",
+          align: "center",
+        },
       ],
+      typeItems: ["CC", "TI"],
       dialog: false,
     };
   },
-  watch:{
-    dialog (val) {
-      val || this.close()
-    }
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
   },
   mounted() {
     this.loadUsers();
@@ -169,13 +215,9 @@ export default {
         });
     },
     editUser(item) {
-      this.editedIndex = this.users.indexOf(item)
-      this.user = Object.assign({}, item)
-      this.dialog = true
-    },
-    getUserDelete(item) {
-      this.itemDelete = item;
-      this.dialogDelete = true;
+      this.editedIndex = this.users.indexOf(item);
+      this.user = Object.assign({}, item);
+      this.dialog = true;
     },
     close() {
       this.dialog = false;
@@ -184,6 +226,29 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
+    updateUser() {
+      let apiURL = `http://localhost:4000/users/update-user/${this.user._id}`;
+      axios
+        .put(apiURL, this.user)
+        .then((res) => {
+          console.log(res);
+          this.close();
+          this.loadUsers();
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(this.$route.params.id);
+        });
+    },
+    deleteUser(id) {
+      let apiURL = `http://localhost:4000/users/remove-user/${id}`;
+      let indexOfItem = this.users.findIndex(i => i._id === id);
+      axios.delete(apiURL).then(() => {
+        this.users.splice(indexOfItem, 1);
+      }).catch(error => {
+        console.log(error)
+      })
+    }
   },
 };
 </script>

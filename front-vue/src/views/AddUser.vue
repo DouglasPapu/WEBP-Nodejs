@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card width="500" shaped elevation="17" class="mx-auto mt-16">
+    <v-card width="500" rounded elevation="17" class="mx-auto mt-16">
       <v-card-title class="justify-center">Add new user</v-card-title>
       <v-form v-model="isValid" @submit.prevent="createUser">
         <v-container>
@@ -33,6 +33,15 @@
               />
             </v-col>
             <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.password"
+                required
+                label="Password"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
               <v-combobox
                 v-model="user.identification.type"
                 :items="typeItems"
@@ -41,8 +50,6 @@
                 dense
               ></v-combobox>
             </v-col>
-          </v-row>
-          <v-row>
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="user.identification.number"
@@ -51,14 +58,7 @@
                 label="Number"
               />
             </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="user.password"
-                required
-                label="Password"
-                type="password"
-              />
-            </v-col>
+            
           </v-row>
           <v-row>
             <v-col cols="12" md="6">

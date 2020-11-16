@@ -12,6 +12,14 @@
         </div>
       </div>
     </main>
+    <v-divider></v-divider>
+    <v-footer fixed class="font-weight-medium">
+      <span class="alig">
+        {{ new Date().getFullYear() }} - By: Douglas Lopez, Juan Martin
+          Garcia
+      </span>
+          
+    </v-footer>
   </v-app>
 </template>
 
