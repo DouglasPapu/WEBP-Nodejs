@@ -2,7 +2,7 @@
   <div>
     <v-card width="500" shaped elevation="17" class="mx-auto mt-16">
       <v-card-title class="justify-center">Add new user</v-card-title>
-      <v-form v-model="isValid">
+      <v-form v-model="isValid" @submit.prevent="createUser">
         <v-container>
           <v-row>
             <v-col cols="12" md="6">
@@ -28,6 +28,7 @@
                 v-model="user.username"
                 required
                 label="Username"
+                :rules="usernameRules"
                 prepend-icon="account_circle"
               />
             </v-col>
@@ -78,34 +79,19 @@
           </v-row>
           <v-row>
             <v-col>
-              <v-btn :disabled="!isValid" class="primary" @click="addToUsers"
-                >Register</v-btn
+              <v-btn :disabled="!isValid" class="primary" @click="createUser">
+                <v-icon>save</v-icon> Save</v-btn
               >
             </v-col>
           </v-row>
         </v-container>
       </v-form>
-
-      <!-- Show user has been added! -->
-      <v-dialog v-model="dialogUserAdded" max-width="500px">
-        <v-card>
-          <v-card-title class="headline">
-            User added successfully!</v-card-title
-          >
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialogUserAdded = false"
-              >OK</v-btn
-            >
-            <v-spacer></v-spacer>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
     </v-card>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -123,14 +109,71 @@ export default {
         photo: "",
         active: false,
       },
+      userData: {
+        name: {
+          firstName: "",
+          lastName: "",
+        },
+        username: "",
+        identification: {
+          type: "",
+          number: "",
+        },
+        password: "",
+        photo: "",
+        active: false,
+      },
       usernameRules: [
-        (username) => !!username || "Username required",
         (username) =>
           username.length >= 8 || "Username must be at least 8 characters",
       ],
       typeItems: ["CC", "TI"],
       isValid: true,
+      editedIndex: -1,
+      dialog: false,
+      users: [],
     };
+  },
+  methods: {
+    close() {
+      this.dialog = false;
+      setTimeout(() => {
+        this.user = Object.assign({}, this.userData);
+        this.editedIndex = -1;
+      }, 300);
+    },
+    saveUser: async function () {
+      if (this.editedIndex > -1) {
+        console.log("updated");
+      } else {
+        this.createUser();
+      }
+    },
+    createUser() {
+      let apiURL = "http://localhost:4000/users/create-user";
+      axios
+        .post(apiURL, this.user)
+        .then(() => {
+          (this.user = {
+            name: {
+              firstName: "",
+              lastName: ""
+            },
+            username: "",
+            identification: {
+              type: "",
+              number: ""
+            },
+            password: "",
+            photo: "",
+            active: false,
+          }),
+            this.close();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 };
 </script>

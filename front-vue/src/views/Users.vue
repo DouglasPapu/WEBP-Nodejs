@@ -1,58 +1,112 @@
 <template>
-  <v-card width="800" shaped elevation="17" class="mx-auto mt-16">
-    <v-simple-table>
-      <thead>
-        <tr>
-          <th class="text-center">Name</th>
-          <th class="text-center">Username</th>
-          <th class="text-center">Identification</th>
-          <th class="text-center">Password</th>
-          <th class="text-center">Photo</th>
-          <th class="text-center">Active</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in users" :key="index">
-          <td>{{ item.name.firstName }} {{ item.name.lastName }}</td>
-          <td>{{ item.username }}</td>
-          <td>
-            {{ item.identification.type }} {{ item.identification.number }}
-          </td>
-          <td>{{ item.password }}</td>
-          <td>
-            <v-icon :color="item.active ? 'green darken-2' : 'red'">{{
-              item.active ? "how_to_reg" : "unpublished"
-            }}</v-icon>
-          </td>
-          <td>
-            <v-icon small @click="viewEdit(item)">edit</v-icon>
-            <v-icon small @click="getUserDelete(item)">delete</v-icon>
-          </td>
-        </tr>
-      </tbody>
-    </v-simple-table>
-
-    <!-- Dialog to delete user -->
-    <v-dialog v-model="dialogDelete" max-width="500px">
-      <v-card>
-        <v-card-title class="headline"
-          >Are you sure you want to delete this item?</v-card-title
+  <v-card width="1000" shaped elevation="17" class="mx-auto mt-16">
+    <v-data-table :headers="headers" :items="users" item-key="_id">
+      <template v-slot:item.actions="{item}">
+        <v-btn
+          color="success"
+          class="mx-2"
+          x-small
+          @click="editUser(item)"
+          outlined
         >
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteUsers(itemDelete)"
-            >OK</v-btn
-          >
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
+          <v-icon small>edit</v-icon>
+        </v-btn>
+        <v-btn color="red" x-small @click="deleteUser(item._id)" outlined>
+          <v-icon small>delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+    <v-dialog v-model="dialog">
+      <v-form v-model="isValid" @submit.prevent="createUser">
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.name.firstName"
+                required
+                label="First Name"
+                prepend-icon="perm_identity"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.name.lastName"
+                required
+                label="Last Name"
+                prepend-icon="person_outline"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.username"
+                required
+                label="Username"
+                :rules="usernameRules"
+                prepend-icon="account_circle"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-combobox
+                v-model="user.identification.type"
+                :items="typeItems"
+                label="Identification type"
+                outlined
+                dense
+              ></v-combobox>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.identification.number"
+                required
+                type="number"
+                label="Number"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="user.password"
+                required
+                label="Password"
+                type="password"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field v-model="user.photo" required label="Photo" />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-switch
+                v-model="user.active"
+                label="Active"
+                color="success"
+                :value="user.active"
+                prepend-icon="check_circle"
+                hide-details
+                required
+              ></v-switch>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn :disabled="!isValid" class="primary" @click="createUser">
+                <v-icon>save</v-icon> Save</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-form>
     </v-dialog>
   </v-card>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -65,19 +119,70 @@ export default {
         (username) =>
           username.length >= 8 || "Username must be at least 8 characters",
       ],
+      user: {
+        name: {
+          firstName: "",
+          lastName: ""
+        },
+        username: "",
+        identification: {
+          type: "",
+          number: ""
+        },
+        password: "",
+        photo: "",
+        active: false,
+      },
+      users: [],
+      headers: [
+        { text: "First Name", value: "name.firstName", sortable: true },
+        { text: "Last Name", value: "name.lastName", sortable: true },
+        { text: "Username", value: "username", sortable: false },
+        { text: "Identification Type", value: "identification.type", sortable: false },
+        { text: "Identification Number", value: "identification.number", sortable: false },
+        { text: "Password", value: "password", sortable: false },
+        { text: "Photo", value: "photo", sortable: false },
+        { text: "Active", value: "active", sortable: false },
+        { text: "Actions", value: "actions", sortable: false, width: "150px" },
+      ],
+      dialog: false,
     };
   },
+  watch:{
+    dialog (val) {
+      val || this.close()
+    }
+  },
+  mounted() {
+    this.loadUsers();
+  },
   methods: {
-    viewEdit(item) {
-      this.dialogEdit = true;
-      this.itemEdit = Object.assign({}, item);
+    loadUsers: async function () {
+      let apiURL = "http://localhost:4000/users";
+      axios
+        .get(apiURL)
+        .then((res) => {
+          this.users = res.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    editUser(item) {
+      this.editedIndex = this.users.indexOf(item)
+      this.user = Object.assign({}, item)
+      this.dialog = true
     },
     getUserDelete(item) {
       this.itemDelete = item;
       this.dialogDelete = true;
     },
-    closeDelete() {
-      this.dialogDelete = false;
+    close() {
+      this.dialog = false;
+      setTimeout(() => {
+        this.user = Object.assign({}, this.userData);
+        this.editedIndex = -1;
+      }, 300);
     },
   },
 };
