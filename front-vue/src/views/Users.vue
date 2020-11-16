@@ -21,7 +21,7 @@
         }}</v-icon>
       </template>
     </v-data-table>
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="dialog" persistent>
       <v-card rounded>
         <v-card-title class="justify-center">Edit User</v-card-title>
         <v-card-text>
@@ -101,7 +101,11 @@
           <v-row>
             <v-col>
               <v-btn :disabled="!isValid" class="primary" @click="updateUser">
-                <v-icon>update</v-icon> Update</v-btn
+                <v-icon left>update</v-icon> Update</v-btn
+              >
+              <v-spacer></v-spacer>
+              <v-btn class="secondary" @click="close">
+                <v-icon left>cancel</v-icon> Cancel</v-btn
               >
             </v-col>
           </v-row>
@@ -119,8 +123,20 @@ import axios from "axios";
 export default {
   data() {
     return {
-      itemDelete: Object,
-      itemEdit: Object,
+      itemEdit: {
+        name: {
+          firstName: "",
+          lastName: ""
+        },
+        username: "",
+        identification: {
+          type: "",
+          number: ""
+        },
+        password: "",
+        photo: "",
+        active: false,
+      },
       dialogDelete: false,
       dialogEdit: false,
       usernameRules: [
@@ -131,12 +147,12 @@ export default {
       user: {
         name: {
           firstName: "",
-          lastName: "",
+          lastName: ""
         },
         username: "",
         identification: {
           type: "",
-          number: "",
+          number: ""
         },
         password: "",
         photo: "",
@@ -222,7 +238,7 @@ export default {
     close() {
       this.dialog = false;
       setTimeout(() => {
-        this.user = Object.assign({}, this.userData);
+        this.user = Object.assign({}, this.itemEdit);
         this.editedIndex = -1;
       }, 300);
     },
