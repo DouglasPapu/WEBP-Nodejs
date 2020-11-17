@@ -220,7 +220,7 @@ export default {
   },
   methods: {
     loadUsers: async function () {
-      let apiURL = "https://crud-users-back.herokuapp.com//users";
+      let apiURL = "https://crud-users-back.herokuapp.com/users";
       axios
         .get(apiURL)
         .then((res) => {
@@ -243,7 +243,7 @@ export default {
       }, 300);
     },
     updateUser() {
-      let apiURL = `https://crud-users-back.herokuapp.com//users/update-user/${this.user._id}`;
+      let apiURL = `https://crud-users-back.herokuapp.com/users/update-user/${this.user._id}`;
       axios
         .put(apiURL, this.user)
         .then((res) => {
@@ -257,7 +257,7 @@ export default {
         });
     },
     deleteUser(id) {
-      let apiURL = `https://crud-users-back.herokuapp.com//users/remove-user/${id}`;
+      let apiURL = `https://crud-users-back.herokuapp.com/users/remove-user/${id}`;
       let indexOfItem = this.users.findIndex(i => i._id === id);
       axios.delete(apiURL).then(() => {
         this.users.splice(indexOfItem, 1);
