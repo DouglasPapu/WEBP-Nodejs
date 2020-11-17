@@ -150,7 +150,7 @@ export default {
       }
     },
     createUser() {
-      let apiURL = "http://localhost:4000/users/create-user";
+      let apiURL = "https://crud-users-back.herokuapp.com//users/create-user";
       axios
         .post(apiURL, this.user)
         .then(() => {
